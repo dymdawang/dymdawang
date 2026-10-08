@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>董奕铭 - 学委竞选主页</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.ripples/0.5.3/jquery.ripples.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;600;700&display=swap');
+    
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: #080b1a; 
+      color: white;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    .halo-shield {
+      text-shadow: 0 0 10px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,1) !important;
+    }
+
+    #water-canvas-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0; 
+      background-image: url('./4.jpg');
+      background-size: cover;
+      background-position: center;
+      opacity: 0; 
+      transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1); 
+      pointer-events: none; 
+    }
+
+    main, footer {
+      position: relative;
+      z-index: 10;
+    }
+
+    @media (hover: hover) and (pointer: fine) { * { cursor: none !important; } }
+
+    body.hero-mode #cursor-dot { background-color: #ffffff !important; }
+    body.hero-mode #cursor-ring { border-color: rgba(255, 255, 255, 0.5) !important; }
+    
+    #cursor-ring.cursor-hover {
+      width: 32px !important;  
+      height: 32px !important;
+      background-color: rgba(224, 255, 255, 0.15) !important;
+      border-color: rgba(224, 255, 255, 0.9) !important;
+    }
+    body.hero-mode #cursor-ring.cursor-hover {
+      background-color: rgba(255, 255, 255, 0.15) !important;
+      border-color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    .sci-fi-font {
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: -0.04em;
+      text-shadow: 0 0 20px rgba(0, 240, 255, 0.4), 0 0 40px rgba(176, 38, 255, 0.2), 0 10px 30px rgba(0, 0, 0, 0.8);
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #080b1a; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+    
+    .stroke-text { -webkit-text-stroke: 2px rgba(255, 255, 255, 0.7); color: transparent; }
+
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    @keyframes heroFadeIn { from { opacity: 0; filter: blur(15px); } to { opacity: 1; filter: blur(0); } }
+    .hero-img-load { animation: heroFadeIn 1.5s cubic-bezier(0.4, 0, 0.2, 1) both; }
+    
+    .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.5, 0, 0, 1); }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.15s; }
+
+    /* =========================================
+       📱 移动端专属沙盒 CSS
+       ========================================= */
+    @media (max-width: 768px) {
+        #sci-fi-video, #hero-final-image-mobile { 
+            transform: scale(1) translateY(0) !important; 
+            object-position: 50% 40% !important; 
+        }
+        .mobile-scroll-hint {
+            left: 0 !important;
+            right: 0 !important;
+            margin: auto !important;
+            transform: none !important;
+            width: 100% !important;
+            text-align: center !important;
+        }
+    }
+
+    @keyframes mobileMaskExpand {
+        0% { -webkit-mask-size: 0% 0%; mask-size: 0% 0%; }
+        100% { -webkit-mask-size: 350% 350%; mask-size: 350% 350%; }
+    }
+    @keyframes mobileOpticalFade {
+        0% { filter: blur(12px) brightness(1.4); }
+        100% { filter: blur(0px) brightness(1); }
+    }
+    
+    .mobile-optical-reveal {
+        opacity: 1 !important;
+        -webkit-mask-image: radial-gradient(circle, black 50%, transparent 55%);
+        mask-image: radial-gradient(circle, black 50%, transparent 55%);
+        -webkit-mask-position: 50% 40%;
+        mask-position: 50% 40%;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        animation: mobileMaskExpand 1.2s cubic-bezier(0.1, 0.9, 0.2, 1) forwards,
+                   mobileOpticalFade 1.2s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+    }
+
+    /* 悬浮预览图固定在鼠标周围的样式 */
+    #hover-preview-img {
+        position: fixed;
+        pointer-events: none;
+        z-index: 100000;
+        opacity: 0;
+        transform: scale(0.9) translate(-50%, -50%);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        border-radius: 12px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        max-width: 400px;
+        max-height: 300px;
+        object-fit: cover;
+    }
+    #hover-preview-img.show {
+        opacity: 1;
+        transform: scale(1) translate(-50%, -50%);
+    }
+
+    /* 压轴神兽弹跳动画 */
+    @keyframes bounceIn {
+        0% { transform: scale(0.3); opacity: 0; }
+        50% { transform: scale(1.05); opacity: 1; }
+        70% { transform: scale(0.9); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .mascot-pop { opacity: 0; }
+    .mascot-pop.active { animation: bounceIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+  </style>
+</head>
+<body>
+
+  <!-- 底层水波纹画布 -->
+  <div id="water-canvas-layer"></div>
+
+  <!-- 鼠标光标 -->
+  <div id="cursor-dot" class="fixed top-0 left-0 w-2 h-2 bg-[#e0ffff] rounded-full pointer-events-none z-[10000] transform -translate-x-1/2 -translate-y-1/2 transition-all duration-200 ease-out hidden md:block"></div>
+  <div id="cursor-ring" class="fixed top-0 left-0 w-8 h-8 border-2 border-[#e0ffff]/50 rounded-full pointer-events-none z-[9999] transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out hidden md:block"></div>
+
+  <!-- 悬浮彩蛋图片容器 -->
+  <img id="hover-preview-img" src="" alt="preview" />
+
+  <!-- 教官 0.8 秒闪现彩蛋全屏遮罩 -->
+  <div id="flash-overlay" class="fixed inset-0 z-[100000] bg-black/90 flex items-center justify-center hidden opacity-0 transition-opacity duration-150 pointer-events-none">
+     <img src="./b7d236df87560343500ec2ab0d73fb83.jpg" class="max-w-[90vw] max-h-[90vh] object-contain rotate-2 scale-110" style="filter: drop-shadow(0 0 50px rgba(255,0,0,0.3));">
+  </div>
+
+  <main>
+    <!-- 第一屏：沉浸式科技转场与竞选宣言 -->
+    <section id="hero-container" class="relative h-[300vh] bg-transparent">
+      <div class="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-transparent">
+        
+        <div id="hero-video-layer" class="absolute inset-0 origin-center flex items-center justify-center bg-[#080b1a] w-full h-full overflow-hidden">
+          <video id="sci-fi-video" src="https://d8j0ntlcm91z4.cloudfront.net/user_39ca84eAE1ODL9hbR5VhoEj8tBf/hf_20260613_120544_a609e0c2-e52d-4bd5-b10f-b66ac51f1965.mp4" poster="https://placehold.co/1920x1080/080b1a/080b1a.png" muted playsinline webkit-playsinline="true" preload="auto" class="absolute inset-0 w-full h-full object-cover z-0" style="transform: scale(1.05);"></video>
+          <img id="hero-final-image-pc" src="./5.jpg" class="absolute inset-0 w-full h-full object-cover z-10 pointer-events-none opacity-0 hidden md:block" style="transform: scale(1.10) translateY(-6.2%); transition: transform 10s ease-out; object-position: center;">
+          <img id="hero-final-image-mobile" src="./5.jpg" class="absolute inset-0 w-full h-full object-cover z-10 pointer-events-none opacity-0 md:hidden block" style="transition: transform 10s ease-out;">
+          <div class="absolute inset-0 bg-black/40 z-20 pointer-events-none"></div>
+        </div>
+
+        <div id="forest-wrapper" class="absolute inset-0 w-full h-full">
+          <img id="forest-bg" src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/hero_forest_img_1.png" class="absolute inset-0 w-full h-full object-cover hero-img-load" style="animation-delay: 0.1s;" />
+          <img id="forest-mg" src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/hero_forest_img_2.png" class="absolute inset-0 w-full h-full object-cover opacity-90 blur-[2px] hero-img-load" style="animation-delay: 0.3s;" />
+          <div id="hero-text-initial" class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 z-20 pointer-events-none pb-[15%] md:pb-[25%]">
+            <h1 class="text-[22vw] md:text-[13vw] leading-none font-black tracking-tighter whitespace-nowrap text-transparent stroke-text drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)] hero-img-load" style="animation-delay: 0.5s; animation-fill-mode: both;">欢迎进入</h1>
+          </div>
+          <img id="forest-fg" src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/hero_forest_img_3.png" class="absolute -bottom-[20%] left-0 w-full object-cover origin-bottom z-30 pointer-events-none hero-img-load" style="animation-delay: 0.4s; animation-fill-mode: both;" />
+        </div>
+
+        <div id="hero-text-final" class="absolute z-40 flex flex-col items-center justify-center text-center px-6 text-white opacity-0 pointer-events-none w-full max-w-full mx-auto gap-4 md:gap-6">
+          <h1 class="text-4xl sm:text-6xl md:text-[9vw] leading-tight md:leading-none font-extrabold tracking-tighter sci-fi-font text-[#e0ffff]">
+            董奕铭的主页
+          </h1>
+          <h2 class="text-base sm:text-xl md:text-[2.5vw] font-medium text-gray-300 md:text-white tracking-wide">
+            重庆邮电大学 · 通信工程本科
+          </h2>
+          <div class="inline-flex items-center gap-2.5 px-5 py-2.5 mt-4 rounded-full bg-[#00f0ff]/10 border border-[#00f0ff]/30 backdrop-blur-md shadow-[0_0_30px_rgba(0,240,255,0.2)]">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#00f0ff] animate-pulse shrink-0"></span>
+            <span class="text-sm md:text-lg font-bold tracking-widest text-white leading-none mt-0.5">
+              竞选目标：2026级通信工程 首席学习委员兼班级“人形备忘录”
+            </span>
+          </div>
+        </div>
+
+        <div class="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 z-50 text-white/50 flex flex-col items-center animate-bounce pointer-events-none mobile-scroll-hint">
+          <span class="text-[10px] md:text-xs font-bold uppercase tracking-widest mb-1 md:mb-2 whitespace-nowrap">向下滚动探索</span>
+          <i data-lucide="arrow-down" class="w-4 h-4 md:w-5 md:h-5"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- 模块二：自我介绍与军训教官彩蛋 -->
+    <section class="py-20 md:py-32 relative overflow-hidden bg-transparent">
+      <div class="max-w-5xl mx-auto px-6 lg:px-8 relative z-10 text-center">
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter leading-tight reveal mb-8">
+          表面上是个“正经”的理工男，<br class="hidden md:block"/>其实是带大家平稳通关大一的<span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00f0ff] to-[#00ff9d]">靠谱队友。</span>
+        </h2>
+        <p class="text-base md:text-xl text-slate-300 halo-shield font-light leading-relaxed reveal reveal-delay-1 max-w-4xl mx-auto text-justify md:text-center">
+          刚上大一，大家都在适应大学的节奏。我主打一个情绪稳定、拒绝内卷。高数听得像天书？大物学得怀疑人生？没关系，咱遇到难题一起查资料、抱团取暖。我绝对是最愿意陪大家一起通关大学副本的人，让我们彻底告别<span id="trigger-instructor" class="cursor-pointer text-[#00f0ff] underline decoration-dashed underline-offset-8 font-bold hover:text-white transition-colors relative z-50">军训时的心理阴影</span>！
+        </p>
+      </div>
+    </section>
+
+    <!-- 模块三：野生极客与悬浮双彩蛋 -->
+    <section class="py-16 md:py-24 max-w-6xl mx-auto px-6 lg:px-8 bg-transparent">
+      <div class="p-8 md:p-12 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-md shadow-2xl reveal">
+        <h2 class="text-2xl md:text-3xl font-black tracking-tighter text-white mb-6 border-l-4 border-[#00f0ff] pl-4">
+          与其纸上谈兵，不如动手折腾。
+        </h2>
+        <p class="text-base md:text-lg text-slate-300 halo-shield font-light leading-relaxed">
+          我平时最大的爱好就是折腾各种提升效率的新工具。最近的对AI方面学习也是让我对世界有了全新的看法。不管是做出<span class="hover-image-trigger text-[#00f0ff] cursor-pointer font-bold border-b border-[#00f0ff]/50 hover:bg-[#00f0ff]/20 px-1 rounded transition-colors" data-img="./2.jpg">高颜值的 PPT</span>，还是自己敲代码做个<span class="hover-image-trigger text-[#00ff9d] cursor-pointer font-bold border-b border-[#00ff9d]/50 hover:bg-[#00ff9d]/20 px-1 rounded transition-colors" data-img="./a9a7c1724c756d5a2a2ec7fa228dcf21.jpg">可交互的小游戏</span>，目前比较火的 AIGC 大模型都能很大程度上提高我们工作的效率和质量。我相信：掌握了高效的工具，就能在大学里拥有‘合法外挂’。现在，我想把这些外挂转化为咱们班的生产力。
+        </p>
+      </div>
+    </section>
+
+    <!-- 模块四：学委的百宝箱 -->
+    <section class="py-16 md:py-24 max-w-7xl mx-auto px-6 lg:px-8 bg-transparent">
+      <div class="mb-12 text-center cursor-default">
+        <h2 class="text-3xl sm:text-4xl font-black tracking-tighter text-white reveal">学委的百宝箱</h2>
+        <p class="mt-4 text-slate-400 text-sm md:text-base reveal reveal-delay-1">主打一个实用、省心、绝不内卷</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- 技能1 -->
+        <div class="reveal p-8 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+          <div class="w-12 h-12 rounded-xl bg-[#1a1f3c] border border-white/10 flex items-center justify-center text-[#00f0ff] mb-6">
+            <i data-lucide="bell-ring" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">作业交期提醒员</h3>
+          <p class="text-slate-300 font-light text-sm leading-relaxed">
+            课表变动？临时换教室？不知道明天早八在哪上？不用翻群聊记录，直接来问我。我随时随地把全班的上课节奏和交作业时间刻在脑子里，绝不让大家跑错教室、漏交作业。
+          </p>
+        </div>
+        <!-- 技能2 -->
+        <div class="reveal reveal-delay-1 p-8 rounded-3xl bg-white/5 border border-[#00ff9d]/30 shadow-[0_0_30px_rgba(0,255,157,0.1)] hover:bg-white/10 transition-colors relative overflow-hidden">
+          <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#00ff9d]/10 rounded-full blur-2xl pointer-events-none"></div>
+          <div class="w-12 h-12 rounded-xl bg-[#1a1f3c] border border-white/10 flex items-center justify-center text-[#00ff9d] mb-6 relative z-10">
+            <i data-lucide="download-cloud" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3 relative z-10">期末重点收集站</h3>
+          <p class="text-slate-300 font-light text-sm leading-relaxed relative z-10">
+            平时悄悄搜集各科老师的 PPT 和往届学长学姐的复习重点，目前也正在学习笔记软件，尽量能帮大家整理出结构化的知识网络。到了期末季直接共享“救命压缩包”，绝不藏私，陪大家一起平稳过考。
+          </p>
+        </div>
+        <!-- 技能3 -->
+        <div class="reveal p-8 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+          <div class="w-12 h-12 rounded-xl bg-[#1a1f3c] border border-white/10 flex items-center justify-center text-[#00f0ff] mb-6">
+            <i data-lucide="monitor-play" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">小组作业PPT魔法师</h3>
+          <p class="text-slate-300 font-light text-sm leading-relaxed">
+            大学免不了各种上台展示和小组汇报。如果你不想做 PPT，放着我来！审美在线，排版精美，保证咱们组在视觉上拿高分，大家直接抱大腿就行。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 模块五：精神状态与日常 (8宫格精致排版) -->
+    <section class="py-16 md:py-24 max-w-7xl mx-auto px-6 lg:px-8 bg-transparent">
+      <div class="mb-12 text-center cursor-default">
+        <h2 class="text-3xl sm:text-4xl font-black tracking-tighter text-white reveal">精神状态与日常</h2>
+      </div>
+
+      <div class="space-y-12">
+        <!-- A. 乒乓日常 -->
+        <div class="reveal flex flex-col md:flex-row items-center gap-8 bg-white/5 border border-white/10 p-6 rounded-[2rem]">
+          <div class="w-full md:w-1/2 aspect-video rounded-2xl overflow-hidden shadow-xl border border-white/10">
+            <img src="./e11d7ec11ff075abd767f2844d81b8ab.jpg" alt="Ping Pong" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+          </div>
+          <div class="w-full md:w-1/2 px-4 md:px-8">
+            <p class="text-[#00f0ff] text-sm font-bold tracking-widest mb-2">【期末解压搭子】</p>
+            <p class="text-lg md:text-xl text-white font-light leading-relaxed">
+              只要学到破防，随时找我去球馆出出汗，物理超度焦虑。
+            </p>
+          </div>
+        </div>
+
+        <!-- B. 日常碎片画廊 (8张精致方图对齐排布) -->
+        <div class="reveal reveal-delay-1 bg-white/5 border border-white/10 p-6 md:p-10 rounded-[2rem]">
+          <div class="mb-8 text-center md:text-left">
+            <p class="text-[#00ff9d] text-sm font-bold tracking-widest mb-2">【情绪价值拉满】</p>
+            <p class="text-lg text-white font-light">热衷收集野生抽象雕像，四处溜达压马路。主打一个内核稳定，给全班提供情绪价值。</p>
+          </div>
+          
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="aspect-square rounded-xl overflow-hidden shadow-lg border border-white/10"><img src="./a2fbf52eedcd4956586f43daa7668179.jpg" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"></div>
+            <div class="aspect-square rounded-xl overflow-hidden shadow-lg border border-white/10"><img src="./e4aff8de26693f5dfbb438ec1586dd13.jpg" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"></div>
+            <div class="aspect-square rounded-xl overflow-hidden shadow-lg border border-white/10"><img src="./3ac0e6450e71cbad94d20eed8e8afc48.jpg" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"></div>
+            <div class="aspect-square rounded-xl overflow-hidden shadow-lg border border-white/10"><img src="./0c918f4efc655382ed9ed3ea3f16faa4.jpg" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"></div>
+            <div class="aspect-square rounded-xl overflow-hidden shadow-lg border border-white/10"><img src="./5c69c8e83ef420b9bae203668788cc06.jpg" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"></div>
+            <div class="aspect-square rounded-xl overflow-hidden shadow-lg border border-white/10"><img src="./6fcc00eced541a48392c1a0b8ef24986.jpg" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"></div>
+            <div class="aspect-square rounded-xl overflow-hidden shadow-lg border border-white/10"><img src="./44abfaa6c9c77c3f2d23662b49c64b29.jpg" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"></div>
+            <div class="aspect-square rounded-xl overflow-hidden shadow-lg border border-white/10"><img src="./73f4d69a17e28d2fb9a65fb31d62dd75.jpg" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 模块六：压轴神兽闪现与极简热线 -->
+    <section class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-[#04060e] border-t border-white/5 pb-20">
+      <div class="relative z-10 flex flex-col items-center text-center mascot-pop">
+        <!-- 重邮绿色吉祥物 -->
+        <img src="./cfe7256e8037ed1749587d682712a59b.jpg" alt="重邮神兽" class="w-[280px] md:w-[400px] h-auto object-contain drop-shadow-[0_20px_50px_rgba(0,255,157,0.3)] mb-12">
+        
+        <!-- 极简拨号按钮 -->
+        <a href="tel:15967720688" class="group relative inline-flex items-center justify-center px-8 md:px-12 py-5 bg-gradient-to-r from-[#00f0ff] to-[#00ff9d] text-[#080b1a] rounded-full text-xl md:text-2xl font-black shadow-[0_0_40px_rgba(0,240,255,0.4)] hover:scale-105 active:scale-95 transition-all outline-none cursor-pointer overflow-hidden">
+          <span class="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-black"></span>
+          <i data-lucide="phone-call" class="w-6 h-6 md:w-8 md:h-8 mr-3 relative z-10 animate-pulse"></i>
+          <span class="relative z-10 tracking-wider">拨打学委热线：15967720688</span>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 💻 PC 端专属：原生 CSS Mask 钢铁侠引擎 -->
+  <script>
+    window.hexPolygonsPC = [];
+    function initHexMaskPC() {
+        if (window.innerWidth <= 768) return; 
+        const svgNS = "http://www.w3.org/2000/svg";
+        let svg = document.getElementById("pc-hex-svg-container");
+        if (!svg) {
+            svg = document.createElementNS(svgNS, "svg");
+            svg.id = "pc-hex-svg-container";
+            svg.style.position = "absolute";
+            svg.style.width = "0";
+            svg.style.height = "0";
+            document.body.appendChild(svg);
+        }
+        svg.innerHTML = "";
+        const defs = document.createElementNS(svgNS, "defs");
+        const mask = document.createElementNS(svgNS, "mask");
+        mask.setAttribute("id", "hex-mask-pc");
+
+        const hexRadius = 35; 
+        const hexWidth = hexRadius * 2;
+        const hexHeight = Math.sqrt(3) * hexRadius;
+        const cols = Math.ceil(window.innerWidth * 1.5 / (hexWidth * 0.75));
+        const rows = Math.ceil(window.innerHeight * 1.5 / hexHeight);
+        const centerX = window.innerWidth * 0.5;
+        const centerY = window.innerHeight * 0.4;
+        const hexGroup = document.createElementNS(svgNS, "g");
+        window.hexPolygonsPC = [];
+
+        for (let r = -2; r < rows + 2; r++) {
+            for (let c = -2; c < cols + 2; c++) {
+                const x = c * hexWidth * 0.75;
+                const y = r * hexHeight + (c % 2 === 1 ? hexHeight / 2 : 0);
+                const hex = document.createElementNS(svgNS, "polygon");
+                const points = [];
+                for (let i = 0; i < 6; i++) {
+                    const angle_rad = Math.PI / 180 * (60 * i);
+                    points.push(`${x + hexRadius * Math.cos(angle_rad)},${y + hexRadius * Math.sin(angle_rad)}`);
+                }
+                hex.setAttribute("points", points.join(" "));
+                hex.setAttribute("fill", "white");
+                hex.style.opacity = "0"; 
+                const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+                const maxDist = Math.sqrt(Math.pow(window.innerWidth, 2) + Math.pow(window.innerHeight, 2));
+                const delay = (dist / maxDist) * 1200 + (Math.random() * 150); 
+                hexGroup.appendChild(hex);
+                window.hexPolygonsPC.push({ el: hex, delay: delay });
+            }
+        }
+        mask.appendChild(hexGroup);
+        defs.appendChild(mask);
+        svg.appendChild(defs);
+    }
+    document.addEventListener("DOMContentLoaded", initHexMaskPC);
+    window.addEventListener("resize", () => {
+        if (window.innerWidth > 768) initHexMaskPC();
+    });
+  </script>
+
+  <!-- 📱 移动端沙盒横屏黑边修复 -->
+  <script>
+    window.addEventListener('orientationchange', () => {
+        const videoLayer = document.getElementById('hero-video-layer');
+        if (videoLayer && window.innerWidth <= 768) {
+            videoLayer.style.display = 'none';
+            videoLayer.offsetHeight; 
+            videoLayer.style.display = 'flex';
+        }
+        setTimeout(() => {
+            if (window.innerWidth <= 768 || window.innerHeight <= 768) {
+                try { $('#water-canvas-layer').ripples('updateSize'); } catch(e){}
+            }
+        }, 300);
+    });
+  </script>
+
+  <!-- 底层基础逻辑与彩蛋引擎 -->
+  <script>
+    let isForestPermanentlyHidden = false; 
+
+    $(document).ready(function() {
+      // 1. 水波纹沙盒隔离
+      try {
+        const $waterLayer =$('#water-canvas-layer');
+        $waterLayer.ripples({
+          resolution: 800, dropRadius: 15, perturbance: 0.02, interactive: false
+        });
+        let isReady = false;
+        let lastDropTime = 0;
+        setTimeout(() => { isReady = true; }, 800);
+
+        $(window).on('scroll', function() {
+          if (window.scrollY > window.innerHeight * 0.8) {
+            $waterLayer.css('opacity', '1');
+          } else {
+            $waterLayer.css('opacity', '0');           }         });$(window).trigger('scroll');
+
+        // 严格的双端水波纹节流阀物理隔离
+        $(document).on('mousemove touchmove touchstart', function(e) {
+          if (!isReady) return; 
+          if (!isForestPermanentlyHidden && window.scrollY <= window.innerHeight * 0.8) return;
+
+          const now = Date.now();
+          let isTouch = e.type.includes('touch');
+          let delayThreshold = isTouch ? 40 : 120;
+
+          if (now - lastDropTime > delayThreshold) {
+            lastDropTime = now;
+            let clientX, clientY;
+            if (isTouch) {
+              if (e.originalEvent.touches && e.originalEvent.touches.length > 0) {
+                clientX = e.originalEvent.touches[0].clientX;
+                clientY = e.originalEvent.touches[0].clientY;
+              } else return;
+            } else {
+              clientX = e.clientX;
+              clientY = e.clientY;
+            }
+            try {
+              $waterLayer.ripples('drop', clientX, clientY, isTouch ? 25 : 15, isTouch ? 0.05 : 0.02);
+            } catch (err) {}
+          }
+        });
+      } catch (e) { console.error("Ripples failed:", e); }
+
+      // 2. 悬浮跟随预览图彩蛋
+      const hoverTriggers = document.querySelectorAll('.hover-image-trigger');
+      const hoverPreview = document.getElementById('hover-preview-img');
+      hoverTriggers.forEach(t => {
+          t.addEventListener('mousemove', (e) => {
+              if (window.matchMedia("(pointer: coarse)").matches) return; // 手机端不悬浮
+              hoverPreview.src = t.getAttribute('data-img');
+              hoverPreview.classList.add('show');
+              // 让图片中心偏离鼠标一点，防止遮挡自己
+              hoverPreview.style.left = (e.clientX + window.innerWidth * 0.1) + 'px';
+              hoverPreview.style.top = (e.clientY) + 'px';
+          });
+          t.addEventListener('mouseleave', () => {
+              hoverPreview.classList.remove('show');
+          });
+      });
+
+      // 3. 教官 0.8 秒终极闪现彩蛋
+      const flashTrigger = document.getElementById('trigger-instructor');
+      const flashOverlay = document.getElementById('flash-overlay');
+      let flashTimeout;
+      if (flashTrigger && flashOverlay) {
+          const triggerFlash = () => {
+              flashOverlay.classList.remove('hidden');
+              // 强行渲染再显现
+              void flashOverlay.offsetWidth;
+              flashOverlay.style.opacity = '1';
+              clearTimeout(flashTimeout);
+              flashTimeout = setTimeout(() => {
+                  flashOverlay.style.opacity = '0';
+                  setTimeout(() => flashOverlay.classList.add('hidden'), 150);
+              }, 800); // 0.8秒极速消失
+          };
+          flashTrigger.addEventListener('mouseenter', triggerFlash);
+          flashTrigger.addEventListener('click', triggerFlash);
+      }
+
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+
+      // 自定义鼠标指针 (PC端)
+      const cursorDot = document.getElementById('cursor-dot');
+      const cursorRing = document.getElementById('cursor-ring');
+      if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+        window.addEventListener('mousemove', (e) => {
+          if(!cursorDot || !cursorRing) return;
+          cursorDot.style.left = `${e.clientX}px`;
+          cursorDot.style.top = `${e.clientY}px`;
+          cursorRing.style.left = `${e.clientX}px`;
+          cursorRing.style.top = `${e.clientY}px`;
+        });
+        document.addEventListener('mouseover', (e) => {
+          const target = e.target.closest('a, button, input, .cursor-pointer');
+          if (target && cursorRing) cursorRing.classList.add('cursor-hover');
+        });
+        document.addEventListener('mouseout', (e) => {
+          const target = e.target.closest('a, button, input, .cursor-pointer');
+          if (target && cursorRing) cursorRing.classList.remove('cursor-hover');
+        });
+      }
+
+      // 视频特效与视差滚动
+      const forestBg = document.getElementById('forest-bg');
+      const forestMg = document.getElementById('forest-mg');
+      const forestFg = document.getElementById('forest-fg');
+      const forestWrapper = document.getElementById('forest-wrapper');
+      const heroVideoLayer = document.getElementById('hero-video-layer');
+      const sciFiVideo = document.getElementById('sci-fi-video');
+      const heroTextInitial = document.getElementById('hero-text-initial');
+      const heroTextFinal = document.getElementById('hero-text-final');
+
+      let hasVideoStarted = false;
+      let isVideoEnded = false;
+      let videoWeight = 0;
+
+      if (sciFiVideo) {
+        sciFiVideo.pause();
+        sciFiVideo.currentTime = 0;
+        sciFiVideo.addEventListener('ended', () => {
+          isVideoEnded = true;
+          if (window.innerWidth > 768) {
+              const finalImagePC = document.getElementById('hero-final-image-pc');
+              if (finalImagePC) {
+                 finalImagePC.style.WebkitMask = "url(#hex-mask-pc)";
+                 finalImagePC.style.mask = "url(#hex-mask-pc)";
+                 finalImagePC.style.opacity = "1";
+                 if (window.hexPolygonsPC) {
+                     window.hexPolygonsPC.forEach(p => {
+                         setTimeout(() => {
+                             p.el.style.transition = "opacity 0.25s ease-in";
+                             p.el.style.opacity = "1";
+                         }, p.delay);
+                     });
+                 }
+                 finalImagePC.style.transform = "scale(1.13) translateY(-6.2%)";
+              }
+          } else {
+              const finalImageMobile = document.getElementById('hero-final-image-mobile');
+              if (finalImageMobile) {
+                  finalImageMobile.classList.add('mobile-optical-reveal');
+              }
+          }
+        });
+      }
+
+      let mouseX = 0, mouseY = 0;
+      let targetX = 0, targetY = 0;
+      window.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+        mouseY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+      });
+
+      function animateParallax() {
+        targetX += (mouseX - targetX) * 0.05; 
+        targetY += (mouseY - targetY) * 0.05;
+
+        if (heroVideoLayer && isVideoEnded) {
+            const moveDamp = window.innerWidth < 768 ? 0.3 : 1; 
+            videoWeight += (1 - videoWeight) * 0.03; 
+            const curX = targetX * 15 * videoWeight * moveDamp;
+            const curY = targetY * 15 * videoWeight * moveDamp;
+            heroVideoLayer.style.transform = `translate(${curX}px, ${curY}px)`;
+        }
+
+        if (!isForestPermanentlyHidden && window.scrollY < window.innerHeight * 1.5) {
+          const isMobile = window.innerWidth < 768;
+          const scaleBg = isMobile ? 1.02 : 1.05;
+          const scaleMg = isMobile ? 1.05 : 1.15;
+          const scaleFg = isMobile ? 1.05 : 1.2;
+          const moveDamp = isMobile ? 0.3 : 1; 
+
+          if(forestBg) forestBg.style.transform = `translate(${targetX * 10 * moveDamp}px, ${targetY * 10 * moveDamp}px) scale(${scaleBg})`;
+          if(forestMg) forestMg.style.transform = `translate(${targetX * 25 * moveDamp}px, ${targetY * 25 * moveDamp}px) scale(${scaleMg})`;
+          if(forestFg) forestFg.style.transform = `translate(${targetX * 60 * moveDamp}px, ${targetY * 60 * moveDamp}px) scale(${scaleFg})`;
+        }
+        requestAnimationFrame(animateParallax);
+      }
+      animateParallax();
+
+      function handleScrollState() {
+        const scrollY = window.scrollY;
+        const foldOffset = window.innerHeight * 1.2;
+        
+        if (!isForestPermanentlyHidden && scrollY >= foldOffset) {
+            isForestPermanentlyHidden = true;
+            document.documentElement.style.setProperty('scroll-behavior', 'auto', 'important');
+            if(forestWrapper) forestWrapper.style.display = 'none';
+            if(heroTextInitial) heroTextInitial.style.display = 'none';
+            const heroContainer = document.getElementById('hero-container');
+            if (heroContainer) {
+                heroContainer.classList.remove('h-[300vh]');
+                heroContainer.style.height = '180vh';
+            }
+            window.scrollBy(0, -foldOffset);
+            setTimeout(() => { document.documentElement.style.setProperty('scroll-behavior', 'smooth', 'important'); }, 50);
+            return; 
+        }
+
+        if (isForestPermanentlyHidden) {
+          document.body.classList.remove('hero-mode');
+          if (heroVideoLayer) heroVideoLayer.style.opacity = 1;
+          if (heroTextFinal) {
+            heroTextFinal.style.opacity = 1;
+            heroTextFinal.style.transform = `scale(1) translateY(0px)`;
+          }
+          return; 
+        }
+
+        if (scrollY < window.innerHeight * 0.4) {
+          document.body.classList.add('hero-mode');
+        } else {
+          document.body.classList.remove('hero-mode');
+        }
+
+        const maxScroll = window.innerHeight * 1.2; 
+        const progress = Math.min(scrollY / maxScroll, 1);
+        
+        if(forestWrapper) {
+          forestWrapper.style.opacity = Math.max(1 - progress * 1.5, 0);
+          forestWrapper.style.transform = `scale(${1 + progress * 0.05}) translateY(${progress * 30}px)`;
+        }
+        if(heroVideoLayer) heroVideoLayer.style.opacity = Math.min(progress * 1.5, 1);
+        if (progress > 0.05 && !hasVideoStarted && sciFiVideo) {
+          hasVideoStarted = true;
+          sciFiVideo.play().catch(e => console.log("Auto-play blocked:", e));
+        }
+
+        if(heroTextFinal) {
+          const text2Progress = Math.max(0, (scrollY - window.innerHeight * 0.4) / (window.innerHeight * 0.6));
+          const finalProgress = Math.min(text2Progress, 1);
+          heroTextFinal.style.opacity = finalProgress;
+          heroTextFinal.style.transform = `scale(${0.9 + finalProgress * 0.1}) translateY(${-20 + finalProgress * 20}px)`;
+        }
+      }
+
+      window.addEventListener('scroll', handleScrollState);
+      handleScrollState();
+
+      // Scroll Reveal 动效
+      const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("active");
+            observer.unobserve(entry.target); 
+          }
+        });
+      }, { threshold: 0.15, rootMargin: "0px 0px -50px 0px" });
+      document.querySelectorAll(".reveal").forEach(el => revealObserver.observe(el));
+
+      // 压轴神兽弹起动效
+      const mascotObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                  entry.target.classList.add("active");
+                  mascotObserver.unobserve(entry.target);
+              }
+          });
+      }, { threshold: 0.5 });
+      const mascotEl = document.querySelector('.mascot-pop');
+      if(mascotEl) mascotObserver.observe(mascotEl);
+
+      // Title 挂机交互
+      const originalTitle = document.title;
+      let titleTimeout;
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          clearTimeout(titleTimeout);
+          document.title = "👀 学委等您投一票...";
+        } else {
+          document.title = "⚡️ 欢迎回来！";
+          titleTimeout = setTimeout(() => { document.title = originalTitle; }, 2000);
+        }
+      });
+
+    });
+  </script>
+</body>
+</html>
